@@ -23,8 +23,6 @@ def input_error(func):
 
     У ВСІХ випадках повертає одне повідомлення:
         "Enter the argument for the command"
-    
-    Це відповідає прикладу в умові ДЗ.
     """
     def wrapper(*args, **kwargs):
         try:
@@ -50,16 +48,13 @@ def parse_input(user_input):
 @input_error
 def add_contact(args, contacts):
     """
-    Додаємо контакт.
+    Додаємо новий контакт.
     Формат: add <name> <phone>
 
     Помилки:
-        ValueError → якщо мало аргументів
+        ValueError → автоматично, якщо недостатньо аргументів
     """
-    if len(args) != 2:
-        raise ValueError
-
-    name, phone = args
+    name, phone = args  # ValueError якщо args < 2
     contacts[name.lower()] = (name, phone)
     return "Contact added."
 
@@ -71,45 +66,35 @@ def change_contact(args, contacts):
     Формат: change <name> <phone>
 
     Помилки:
-        ValueError — неправильна кількість аргументів
-        KeyError — контакт не існує
+        ValueError → недостатньо аргументів
+        KeyError → контакт не існує
     """
-    if len(args) != 2:
-        raise ValueError
-
-    name, phone = args
+    name, phone = args  # ValueError якщо args < 2
     key = name.lower()
 
-    if key not in contacts:
-        raise KeyError
+    original_name = contacts[key]  # KeyError якщо нема
+    contacts[key] = (original_name[0], phone)
 
-    original_name = contacts[key][0]
-    contacts[key] = (original_name, phone)
     return "Contact updated."
 
 
 @input_error
 def show_phone(args, contacts):
     """
-    Показуємо номер телефону контакту.
+    Повертаємо номер телефону контакту.
     Формат: phone <name>
 
     Помилки:
-        IndexError — не передали ім'я
-        KeyError — контакту не існує
+        IndexError → не передали ім'я
+        KeyError → контакту не існує
     """
-    name = args[0]  # може викликати IndexError
-    key = name.lower()
-
-    if key not in contacts:
-        raise KeyError
-
-    return contacts[key][1]
+    name = args[0]  # IndexError якщо нема аргументів
+    return contacts[name.lower()][1]  # KeyError якщо нема контакту
 
 
 def show_all(contacts):
     """
-    Показуємо всі контакти.
+    Показуємо всі збережені контакти.
     """
     if not contacts:
         return "No contacts saved."
@@ -120,23 +105,8 @@ def show_all(contacts):
 
 def main():
     """
-    Основна функція запуску консольного бота.
-
-    Реалізує нескінченний цикл обробки команд користувача.
-    Приймає текстові команди через input(),
-    визначає потрібну дію та викликає відповідні handler-функції.
-
-    Підтримувані команди:
-        - hello      → привітання
-        - add        → додати новий контакт
-        - change     → змінити номер існуючого контакту
-        - phone      → показати номер телефону контакту
-        - all        → показати всі контакти
-        - exit/close → завершити роботу бота
-
-    Усі помилки, пов’язані з некоректним введенням аргументів,
-    обробляються за допомогою декоратора input_error,
-    що забезпечує стабільність роботи та запобігає завершенню програми.
+    Головна функція консольного бота.
+    Обробляє команди користувача у циклі.
     """
     contacts = {}
     print("Welcome to the assistant bot!")
